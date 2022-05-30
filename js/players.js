@@ -13,15 +13,19 @@ function generateTable() {
     .then((data) => {
       person = data;
       console.log("Dati ricevuti: ", data);
-      let table = generateRows(data);
+      let rows = generateRows(data);
+      let table = document.createElement("div");
+      table.classList.add("tab");
+      tableContainer.appendChild(table);
+      table.insertAdjacentHTML("beforeend", rows);
 
-      tableContainer.insertAdjacentHTML("beforeend", table);
-      let modifyBtn = document.querySelectorAll(".modify-person");
       let deleteBtn = document.querySelectorAll(".delete-person");
+      let cards = document.querySelectorAll(".card");
 
-      for (let i = 0; i < modifyBtn.length; i++) {
-        modifyBtn[i].addEventListener("click", showUpdateForm);
+      for (let i = 0; i < cards.length; i++) {
+        cards[i].addEventListener("click", statistcs);
       }
+
       for (let i = 0; i < deleteBtn.length; i++) {
         deleteBtn[i].addEventListener("click", deletePerson);
       }
@@ -34,18 +38,14 @@ function generateTable() {
 function generateRows(people) {
   let rows = "";
   people.forEach((person) => {
-    let row = `
-
-
-    <div class="col-md-4 mt-4">
-    		    <div class="card profile-card">
+    let row = `<div class="col-md-4 mt-4">
+    		    <div data-val="${person.id}" class="card profile-card">
     		        <div class="card-img-block">
     		            <img class="card-img-top" src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c" alt="Card image cap">
     		        </div>
                     <div class="card-body pt-0">
                     <h5 class="card-title">${person.name} ${person.surname}</h5>
                     <p class="card-text">${person.team}</p>
-                    <button class="modify-person" data-val="${person.id}">modifica</button>
                     <button class="delete-person" data-val="${person.id}">elimina</button>
                     
                   </div>
@@ -60,12 +60,17 @@ function generateRows(people) {
   return rows;
 }
 
-const newPerson = document.querySelector("#new-person");
-const insertBtn = document.querySelector("#insert-btn");
+const newPerson = document.querySelector("#new-person"); //fotm btn
+const insertBtn = document.querySelector("#insert-btn"); // insert btn
 const newPersonForm = document.querySelector("#new-person-form");
-const updatePersonForm = document.querySelector("#update-person-form");
+
 newPerson.addEventListener("click", showForm);
 insertBtn.addEventListener("click", insertPerson);
+
+function statistcs(e) {
+  console.log("statistics");
+  let id = e.target.getAttribute("data-val");
+}
 
 function showForm() {
   if (newPersonForm.style.display === "none") {
@@ -74,31 +79,6 @@ function showForm() {
     newPersonForm.style.display = "none";
   }
 }
-
-function showUpdateForm(e) {
-  if (updatePersonForm.style.display === "none") {
-    let id = e.target.getAttribute("data-val");
-    const nameForm = document.querySelector("#name");
-    const surnameForm = document.querySelector("#surname");
-    const ageForm = document.querySelector("#age");
-    const teamForm = document.querySelector("#team");
-
-    for (let i = 0; i < person.length; i++) {
-      if (person[i].id === id) {
-        console.log(person[i]);
-        nameForm.value = person[i].name;
-        surnameForm.value = person[i].surname;
-        ageForm.value = person[i].age;
-        teamForm.value = person[i].team;
-      }
-    }
-    updatePersonForm.style.display = "block";
-  } else {
-    updatePersonForm.style.display = "none";
-  }
-}
-
-function showFormUpdate(e) {}
 
 function insertPerson() {
   console.log("nuovo atleta inserito");
@@ -132,7 +112,9 @@ function insertPerson() {
 
   showForm();
 }
+
 let classes = result.classList;
+
 function showResponse(msg) {
   classes.add("alert-success");
 
@@ -143,34 +125,6 @@ function showResponse(msg) {
   }, 5000);
 }
 
-function modifyPerson(e) {
-  //   const nameForm = document.querySelector("#name");
-  //   const surnameForm = document.querySelector("#surname");
-  //   const ageForm = document.querySelector("#age");
-  //   const teamForm = document.querySelector("#team");
-  const formData = new FormData();
-  formData.append("id", id),
-    fetch("./php/update.php", {
-      method: "POST",
-      header: {
-        "Content-type": "application/json",
-      },
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        if (data.response === 1) {
-          showResponse(data.message);
-          recreateTable();
-        }
-      })
-      .catch((error) => {
-        console.error("Errore: ", error);
-      });
-
-  // showForm(updatePersonForm);
-}
 function deletePerson(e) {
   console.log("elimino persona: ", e.target.getAttribute("data-val"));
 
@@ -199,7 +153,8 @@ function deletePerson(e) {
 }
 
 function recreateTable() {
-  let table = document.querySelector("table");
+  let table = document.querySelector(".tab");
   tableContainer.removeChild(table);
   generateTable();
+  console.log("entrato");
 }

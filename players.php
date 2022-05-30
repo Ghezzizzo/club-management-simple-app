@@ -54,7 +54,7 @@
         }
 
         /* card grid */
-        #table-conatiner {
+        .tab {
             display: flex;
             flex-wrap: wrap;
         }
